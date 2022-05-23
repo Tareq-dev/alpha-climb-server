@@ -45,6 +45,21 @@ async function run() {
       const result = await ordersCollection.insertOne(orders);
       res.send(result);
     });
+    // GET == orders
+    app.get("/orders", async (req, res) => {
+      const orders = await productCollection.find().toArray();
+      res.send(orders);
+    });
+
+    // GET == orders by email
+
+    app.get("/orders/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const order = await ordersCollection.findOne(query);
+      res.send(order);
+    });
+
     // POST Payment API
     app.post("/create-payment-intent", async (req, res) => {
       const product = req.body;
