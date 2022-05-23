@@ -22,6 +22,7 @@ async function run() {
     const productCollection = client.db("alpha-climb").collection("products");
     const ordersCollection = client.db("alpha-climb").collection("orders");
     const paymentCollection = client.db("alpha-climb").collection("payment");
+    const userCollection = client.db("alpha-climb").collection("profile");
 
     // GET == products
     app.get("/products", async (req, res) => {
@@ -75,6 +76,21 @@ async function run() {
         updatedDoc
       );
       res.send(updatedDoc);
+    });
+
+    //User profile update API
+
+    app.post("/user/profile", async (req, res) => {
+      const profile = req.body;
+      const result = await userCollection.insertOne(profile);
+      res.send(result);
+    });
+
+    // GET user profile
+    app.get("/user/profile/:email", async (req, res) => {
+      const email = req.params.email;
+      const profile = await userCollection.find({ email: email }).toArray();
+      res.send(profile);
     });
   } finally {
   }
