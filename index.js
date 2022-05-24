@@ -24,6 +24,20 @@ async function run() {
     const paymentCollection = client.db("alpha-climb").collection("payment");
     const userCollection = client.db("alpha-climb").collection("profile");
     const reviewCollection = client.db("alpha-climb").collection("reviews");
+    //Put USER
+
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      // const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+      res.send(result);
+    });
 
     // GET == products
     app.get("/products", async (req, res) => {
@@ -47,7 +61,14 @@ async function run() {
       const product = await productCollection.findOne(query);
       res.send(product);
     });
+    //Delete Product
 
+    app.delete("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productCollection.deleteOne(query);
+      res.send(result);
+    });
     // POST for order
     app.post("/orders", async (req, res) => {
       const orders = req.body;
@@ -85,6 +106,15 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const order = await ordersCollection.findOne(query);
       res.send(order);
+    });
+
+    //Delete order
+
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.deleteOne(query);
+      res.send(result);
     });
 
     // POST for order
@@ -140,11 +170,22 @@ async function run() {
     });
     //User profile update API
 
-    app.post("/user/profile", async (req, res) => {
-      const profile = req.body;
-      const result = await userCollection.insertOne(profile);
+    app.put("/user/profile", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
+    // app.post("/user/profile", async (req, res) => {
+    //   const profile = req.body;
+    //   const result = await userCollection.insertOne(profile);
+    //   res.send(result);
+    // });
 
     // GET user profile
     app.get("/user/profile/:email", async (req, res) => {
