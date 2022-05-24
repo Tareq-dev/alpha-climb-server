@@ -23,12 +23,21 @@ async function run() {
     const ordersCollection = client.db("alpha-climb").collection("orders");
     const paymentCollection = client.db("alpha-climb").collection("payment");
     const userCollection = client.db("alpha-climb").collection("profile");
+    const reviewCollection = client.db("alpha-climb").collection("reviews");
 
     // GET == products
     app.get("/products", async (req, res) => {
       const query = {};
       const products = await productCollection.find(query).toArray();
       res.send(products);
+    });
+
+    // POST == products
+
+    app.post("/products", async (req, res) => {
+      const products = req.body;
+      const result = await productCollection.insertOne(products);
+      res.send(result);
     });
 
     // GET == single products
@@ -76,6 +85,18 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const order = await ordersCollection.findOne(query);
       res.send(order);
+    });
+
+    // POST for order
+    app.post("/reviews", async (req, res) => {
+      const reviews = req.body;
+      const result = await reviewCollection.insertOne(reviews);
+      res.send(result);
+    });
+
+    app.get("/reviews", async (req, res) => {
+      const reviews = await reviewCollection.find().toArray();
+      res.send(reviews);
     });
 
     // POST Payment API
