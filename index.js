@@ -35,10 +35,7 @@ async function run() {
     app.get("/products/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-
       const product = await productCollection.findOne(query);
-      console.log(product);
-
       res.send(product);
     });
 
@@ -63,12 +60,19 @@ async function run() {
       res.send(order);
     });
 
+    // GET == orders by email and id
+    app.get("/orders/:email/:id", async (req, res) => {
+      const email = req.params.email;
+      const productId = req.params.id;
+      const query = { email: email, productId: productId };
+      const order = await ordersCollection.find(query).toArray();
+      res.send(order);
+    });
 
     // GET == orders by id
 
     app.get("/orders/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const query = { _id: ObjectId(id) };
       const order = await ordersCollection.findOne(query);
       res.send(order);
@@ -106,7 +110,13 @@ async function run() {
       );
       res.send(updatedDoc);
     });
-
+    // GET ==Payment
+    app.get("/payment/:id", async (req, res) => {
+      const paymentId = req.params.id;
+      const query = { paymentId: paymentId };
+      const payment = await paymentCollection.findOne(query);
+      res.send(payment);
+    });
     //User profile update API
 
     app.post("/user/profile", async (req, res) => {
