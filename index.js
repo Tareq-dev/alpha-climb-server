@@ -41,6 +41,15 @@ async function run() {
     const userCollection = client.db("alpha-climb").collection("user");
     const reviewCollection = client.db("alpha-climb").collection("reviews");
 
+
+ // GET ADMIN
+ app.get("/user/:email", async (req, res) => {
+  const email = req.params.email;
+  const user = await userCollection.findOne({ email: email });
+  res.send(user);
+});
+
+
     //Put USER
 
     app.put("/user/:email", async (req, res) => {
@@ -82,13 +91,7 @@ async function run() {
       res.send(result);
     });
 
-    // app.get("/user/profile/:email", async (req, res) => {
-    //   const email = req.params.email;
-    //   const profile = await userCollection.find({ email: email }).toArray();
-    //   res.send(profile);
-    // });
-
-    // GET == products
+       // GET == products
     app.get("/products", async (req, res) => {
       const query = {};
       const products = await productCollection.find(query).toArray();
@@ -125,14 +128,14 @@ async function run() {
       res.send(result);
     });
     // GET == orders
-    app.get("/orders", verifyJWT, async (req, res) => {
+    app.get("/orders", async (req, res) => {
       const orders = await ordersCollection.find().toArray();
       res.send(orders);
     });
 
     // GET == orders by email
 
-    app.get("/orders/:email", verifyJWT, async (req, res) => {
+    app.get("/orders/:email",verifyJWT, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const order = await ordersCollection.find(query).toArray();
