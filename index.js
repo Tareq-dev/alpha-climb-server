@@ -41,14 +41,12 @@ async function run() {
     const userCollection = client.db("alpha-climb").collection("user");
     const reviewCollection = client.db("alpha-climb").collection("reviews");
 
-
- // GET ADMIN
- app.get("/user/:email", async (req, res) => {
-  const email = req.params.email;
-  const user = await userCollection.findOne({ email: email });
-  res.send(user);
-});
-
+    // GET ADMIN
+    app.get("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      res.send(user);
+    });
 
     //Put USER
 
@@ -72,6 +70,16 @@ async function run() {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
+
+    //Delete Product
+
+    app.delete("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // GET ADMIN
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
@@ -81,7 +89,7 @@ async function run() {
     });
 
     // PUT Admin Role
-    app.put("/user/admin/:email", verifyJWT, async (req, res) => {
+    app.put("/user/admin/:email", async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
       const updateDoc = {
@@ -91,7 +99,7 @@ async function run() {
       res.send(result);
     });
 
-       // GET == products
+    // GET == products
     app.get("/products", async (req, res) => {
       const query = {};
       const products = await productCollection.find(query).toArray();
@@ -113,6 +121,7 @@ async function run() {
       const product = await productCollection.findOne(query);
       res.send(product);
     });
+
     //Delete Product
 
     app.delete("/products/:id", async (req, res) => {
@@ -128,14 +137,23 @@ async function run() {
       res.send(result);
     });
     // GET == orders
+
     app.get("/orders", async (req, res) => {
       const orders = await ordersCollection.find().toArray();
       res.send(orders);
     });
 
+    // Order Delete
+
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.deleteOne(query);
+      res.send(result);
+    });
     // GET == orders by email
 
-    app.get("/orders/:email",verifyJWT, async (req, res) => {
+    app.get("/orders/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const order = await ordersCollection.find(query).toArray();
@@ -195,10 +213,10 @@ async function run() {
     });
 
     //Patch payment method
-    app.patch("/products/:id", async (req, res) => {
-      const id = req.params.id;
+    app.patch("/order/:id", async (req, res) => {
+      const productId = req.params.id;
       const payment = req.body;
-      const filter = { _id: ObjectId(id) };
+      const filter = { productId: payment.paymentId };
       const updatedDoc = {
         $set: {
           paid: true,
@@ -207,10 +225,7 @@ async function run() {
       };
 
       const result = await paymentCollection.insertOne(payment);
-      const updatedOrder = await productCollection.updateOne(
-        filter,
-        updatedDoc
-      );
+      const updatedOrder = await ordersCollection.updateOne(filter, updatedDoc);
       res.send(updatedDoc);
     });
     // GET ==Payment
@@ -220,19 +235,6 @@ async function run() {
       const payment = await paymentCollection.findOne(query);
       res.send(payment);
     });
-    //User profile update API
-
-    // app.put("/user/profile", async (req, res) => {
-    //   const email = req.params.email;
-    //   const user = req.body;
-    //   const filter = { email: email };
-    //   const options = { upsert: true };
-    //   const updateDoc = {
-    //     $set: user,
-    //   };
-    //   const result = await userCollection.updateOne(filter, updateDoc, options);
-    //   res.send(result);
-    // });
   } finally {
   }
 }
