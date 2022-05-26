@@ -43,7 +43,7 @@ async function run() {
 
     // GET ADMIN
 
-    app.get("/user/:email", verifyToken, async (req, res) => {
+    app.get("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
       res.send(user);
@@ -213,22 +213,24 @@ async function run() {
       res.send({ clientSecret: paymentIntent.client_secret });
     });
 
-    //Patch payment method
-    app.patch("/order/:id", async (req, res) => {
+    // payment method
+    app.put("/order/:email/:id", async (req, res) => {
+      email = req.params.email;
       const productId = req.params.id;
       const payment = req.body;
-      const filter = { productId: payment.paymentId };
+      const filter = { email: email, productId: payment.paymentId };
       const updatedDoc = {
         $set: {
           paid: true,
           transactionId: payment.transactionId,
         },
       };
-
       const result = await paymentCollection.insertOne(payment);
       const updatedOrder = await ordersCollection.updateOne(filter, updatedDoc);
+      console.log(updatedOrder);
       res.send(updatedDoc);
     });
+
     // GET ==Payment
     app.get("/payment/:id", async (req, res) => {
       const paymentId = req.params.id;
