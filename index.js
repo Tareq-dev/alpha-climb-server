@@ -17,13 +17,13 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-function verifyJWT(req, res, next) {
+function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).send({ message: "UnAuthorized access" });
   }
-  const token = authHeader.split(" ")[1];
-  jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
+  const secret = authHeader.split(" ")[1];
+  jwt.verify(secret, process.env.SECRET_KEY, function (err, decoded) {
     if (err) {
       return res.status(403).send({ message: "Forbidden access" });
     }
@@ -42,7 +42,8 @@ async function run() {
     const reviewCollection = client.db("alpha-climb").collection("reviews");
 
     // GET ADMIN
-    app.get("/user/:email", async (req, res) => {
+
+    app.get("/user/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
       res.send(user);
@@ -66,7 +67,7 @@ async function run() {
     });
 
     // GET user
-    app.get("/user", async (req, res) => {
+    app.get("/user", verifyToken, async (req, res) => {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
@@ -81,7 +82,7 @@ async function run() {
     });
 
     // GET ADMIN
-    app.get("/admin/:email", async (req, res) => {
+    app.get("/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
       const isAdmin = user.role === "admin";
@@ -138,7 +139,7 @@ async function run() {
     });
     // GET == orders
 
-    app.get("/orders", async (req, res) => {
+    app.get("/orders", verifyToken, async (req, res) => {
       const orders = await ordersCollection.find().toArray();
       res.send(orders);
     });
@@ -234,6 +235,18 @@ async function run() {
       const query = { paymentId: paymentId };
       const payment = await paymentCollection.findOne(query);
       res.send(payment);
+    });
+
+    // PUT Admin Role
+    app.patch("/admin/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: { Shipped: true },
+      };
+      const result = await ordersCollection.updateOne(filter, updateDoc);
+
+      res.send(result);
     });
   } finally {
   }
