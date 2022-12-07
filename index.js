@@ -10,7 +10,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET);
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.68cho.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://alpha-climb-179:hJRHiWd6lOMdPvFQ@cluster0.68cho.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -214,7 +214,7 @@ async function run() {
     });
 
     // Put method
-    
+
     app.put("/order/:email/:id", async (req, res) => {
       email = req.params.email;
       const productId = req.params.id;
