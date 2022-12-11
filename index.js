@@ -17,20 +17,20 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-function verifyToken(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).send({ message: "UnAuthorized access" });
-  }
-  const secret = authHeader.split(" ")[1];
-  jwt.verify(secret, process.env.SECRET_KEY, function (err, decoded) {
-    if (err) {
-      return res.status(403).send({ message: "Forbidden access" });
-    }
-    req.decoded = decoded;
-    next();
-  });
-}
+// function verifyToken(req, res, next) {
+//   const authHeader = req.headers.authorization;
+//   if (!authHeader) {
+//     return res.status(401).send({ message: "UnAuthorized access" });
+//   }
+//   const secret = authHeader.split(" ")[1];
+//   jwt.verify(secret, process.env.SECRET_KEY, function (err, decoded) {
+//     if (err) {
+//       return res.status(403).send({ message: "Forbidden access" });
+//     }
+//     req.decoded = decoded;
+//     next();
+//   });
+// }
 
 async function run() {
   try {
@@ -67,7 +67,7 @@ async function run() {
     });
 
     // GET user
-    app.get("/user", verifyToken, async (req, res) => {
+    app.get("/user",  async (req, res) => {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
@@ -82,10 +82,10 @@ async function run() {
     });
 
     // GET ADMIN
-    app.get("/admin/:email", verifyToken, async (req, res) => {
+    app.get("/admin/:email",  async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
-      const isAdmin = user.role === "admin";
+      const isAdmin = user?.role === "admin";
       res.send({ admin: isAdmin });
     });
 
@@ -139,7 +139,7 @@ async function run() {
     });
     // GET == orders
 
-    app.get("/orders", verifyToken, async (req, res) => {
+    app.get("/orders",  async (req, res) => {
       const orders = await ordersCollection.find().toArray();
       res.send(orders);
     });
@@ -228,7 +228,6 @@ async function run() {
       };
       const result = await paymentCollection.insertOne(payment);
       const updatedOrder = await ordersCollection.updateOne(filter, updatedDoc);
-      console.log(updatedOrder);
       res.send(updatedDoc);
     });
 
