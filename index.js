@@ -67,7 +67,7 @@ async function run() {
     });
 
     // GET user
-    app.get("/user",  async (req, res) => {
+    app.get("/user", async (req, res) => {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
@@ -82,7 +82,7 @@ async function run() {
     });
 
     // GET ADMIN
-    app.get("/admin/:email",  async (req, res) => {
+    app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
       const isAdmin = user?.role === "admin";
@@ -139,7 +139,7 @@ async function run() {
     });
     // GET == orders
 
-    app.get("/orders",  async (req, res) => {
+    app.get("/orders", async (req, res) => {
       const orders = await ordersCollection.find().toArray();
       res.send(orders);
     });
@@ -217,7 +217,6 @@ async function run() {
 
     app.put("/order/:email/:id", async (req, res) => {
       email = req.params.email;
-      const productId = req.params.id;
       const payment = req.body;
       const filter = { email: email, productId: payment.paymentId };
       const updatedDoc = {
@@ -226,9 +225,11 @@ async function run() {
           transactionId: payment.transactionId,
         },
       };
-      const result = await paymentCollection.insertOne(payment);
+      // const result = await paymentCollection.insertOne(payment);
       const updatedOrder = await ordersCollection.updateOne(filter, updatedDoc);
-      res.send(updatedDoc);
+      console.log(updatedOrder)
+
+      res.send(updatedOrder);
     });
 
     // GET ==Payment
